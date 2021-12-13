@@ -1,45 +1,53 @@
 export const bowl = (rolls) => {
-  let total = 0;
-  const frames = [];
+  const getFrames = (rolls) => {
+    const frames = [];
 
-  for (let i = 0; i < rolls.length; i += 2) {
-    if (rolls[i] === 10) {
-      frames.push([rolls[i]]);
-      i--;
-    } else {
-      frames.push([rolls[i], rolls[i + 1]]);
-    }
-  }
-
-  for (let i = 0; i < frames.length; i++) {
-    const currentFrame = frames[i];
-
-    let scoreForFrame;
-
-    const isStrike = currentFrame.length === 1;
-    // const scoreFromCurrentFrame = isStrike ? currentFrame[0] : currentFrame[0] + currentFrame[1]
-    // const scoreFromNextFrame = isStrike ? nextFrame[0] + nextFrame[1] : nextFrame[0]
-    // condition ? true : false
-
-    if (isStrike) {
-      scoreForFrame = currentFrame[0];
-
-      const nextFrame = frames[i + 1];
-      scoreForFrame += nextFrame[0] + nextFrame[1];
-    } else {
-      scoreForFrame = currentFrame[0] + currentFrame[1];
-      const isSpare = scoreForFrame === 10;
-      const nextFrame = frames[i + 1];
-
-      if (isSpare) {
-        scoreForFrame += nextFrame[0];
+    for (let i = 0; i < rolls.length; i += 2) {
+      if (rolls[i] === 10) {
+        frames.push([rolls[i]]);
+        i--;
+      } else {
+        frames.push([rolls[i], rolls[i + 1]]);
       }
     }
+    return frames;
+  };
 
-    total += scoreForFrame;
-  }
+  const calculateScoreForFrame = (frame, nextFrame) => {
+    const isStrike = frame.length === 1;
 
-  return total;
+    if (isStrike) {
+      const scoreForCurrentFrame = frame[0];
+      const scoreForNextFrame = nextFrame ? nextFrame[0] + nextFrame[1] : 0;
 
-  //   return rolls.reduce((score, roll) => score + roll, 0);
+      return scoreForCurrentFrame + scoreForNextFrame;
+    } else {
+      const scoreForCurrentFrame = frame[0] + frame[1];
+      const scoreForNextFrame = nextFrame ? nextFrame[0] : 0;
+
+      const isSpare = scoreForCurrentFrame === 10;
+
+      if (isSpare) {
+        return scoreForCurrentFrame + scoreForNextFrame;
+      }
+
+      return scoreForCurrentFrame;
+    }
+  };
+
+  const calculateScoreForGame = (frames) => {
+    let total = 0;
+    let scoreForFrame = 0;
+
+    for (let i = 0; i < frames.length; i++) {
+      scoreForFrame += calculateScoreForFrame(frames[i], frames[i + 1]);
+    }
+
+    return total + scoreForFrame;
+  };
+
+  const frames = getFrames(rolls);
+  const score = calculateScoreForGame(frames);
+
+  return score;
 };
